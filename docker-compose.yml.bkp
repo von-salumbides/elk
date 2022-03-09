@@ -1,0 +1,51 @@
+version: '3.9'
+
+volumes:
+  elasticsearch:
+    driver: local
+  kibana:
+    driver: local
+
+networks:
+  elastic:
+    driver: bridge
+
+services:
+  es-service:
+    image: 'elasticsearch:8.0.1'
+    container_name: 'es-service'
+    ports:
+      - '9200:9200'
+      - '9300:9300'
+    environment:
+      - network.host=0.0.0.0
+      - discovery.type=single-node
+      - cluster.name=docker-cluster
+      - node.name=cluster-node
+      - xpack.license.self_generated.type=basic
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - 'elasticsearch:/usr/share/elasticsearch/data'
+    networks:
+      - elastic
+
+  kibana-service:
+    image: 'kibana:8.0.1'
+    container_name: 'kibana-service'
+    volumes:
+      - 'kibana:/usr/share/kibana/data'
+    ports:
+      - '5601:5601'
+    environment:
+      SERVER_HOSTS: 0.0.0.0
+      ELASTICSEARCH_HOSTS: http://es-service:9200
+    networks:
+      - elastic
+    depends_on:
+      - elasticsearch-service
+    
