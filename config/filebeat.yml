@@ -1,0 +1,28 @@
+#=========================== Filebeat inputs =============================
+
+filebeat.inputs:
+
+- type: aws-cloudwatch
+  log_group_arn: ${log_group_name}
+  scan_frequency: 1m
+  credential_profile_name: elastic-beats
+  start_position: end
+
+#============================= Filebeat modules ===============================
+
+#==================== Elasticsearch template setting ==========================
+#setup.ilm.enabled: false
+#setup.ilm.check_exists: false
+setup.template.settings:
+  index.number_of_shards: 3
+#----------------------------- Logstash output --------------------------------
+output.logstash:
+  # The Logstash hosts
+  hosts: ["${FILEBEAT_LOGSTASHHOSTS}"]
+
+processors:
+  - add_host_metadata: ~
+  - add_cloud_metadata: ~
+  - add_tags:
+        tags: ${FILEBEAT_ENVIRONMENT}
+        target: "environment"

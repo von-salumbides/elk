@@ -1,0 +1,4 @@
+FROM docker.elastic.co/logstash/logstash-oss:7.17.1
+RUN bin/logstash-plugin install logstash-output-amazon_es
+COPY config/logstash.conf /usr/share/logstash/pipeline/logstash.conf
+EXPOSE 5044 9600
